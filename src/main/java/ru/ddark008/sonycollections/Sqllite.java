@@ -4,8 +4,9 @@
  */
 package ru.ddark008.sonycollections;
 
-import java.io.File;
+import java.io.*;
 import java.sql.*;
+import java.text.SimpleDateFormat;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -26,10 +27,7 @@ public class Sqllite {
         try {
             // create a database connection
             connection = DriverManager.getConnection("jdbc:sqlite:" + db);
-
         } catch (SQLException e) {
-            // if the error message is "out of memory",
-            // it probably means no database file is found
             System.err.println(e.getMessage());
         }
     }
@@ -38,11 +36,11 @@ public class Sqllite {
      *
      * @return
      */
-    public int getBookID(int bookSize, String bookName) {
+    public int getBookID(long bookSize, String bookName) {
         PreparedStatement st = null;
         try {
             st = connection.prepareStatement("SELECT _id FROM books WHERE file_size = ? AND file_name = ?");
-            st.setInt(1, bookSize);
+            st.setLong(1, bookSize);
             st.setString(2, bookName);
             st.setQueryTimeout(30);
             ResultSet rs = st.executeQuery();
@@ -131,7 +129,7 @@ public class Sqllite {
         return -1;
     }
 
-        public boolean addBook(int CollId, int BookId) {
+    public boolean addBook(int CollId, int BookId) {
         PreparedStatement st = null;
         try {
             st = connection.prepareStatement("INSERT INTO collections  VALUES ( NULL, ? , ? , NULL )");
@@ -163,5 +161,32 @@ public class Sqllite {
             // connection close failed.
             System.err.println(e);
         }
+    }
+
+    public boolean backup(File f1) {
+        try {
+            java.util.Date today = new java.util.Date();
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy.MMM.dd.HH.mm.ss");
+            String formattedDate = formatter.format(today);
+            File f2 = new File(f1.getParentFile() +"/"+ formattedDate +  " " + f1.getName());
+            InputStream in = new FileInputStream(f1);
+            OutputStream out = new FileOutputStream(f2, true);
+
+            byte[] buf = new byte[1024];
+            int len;
+            while ((len = in.read(buf)) > 0) {
+                out.write(buf, 0, len);
+            }
+            in.close();
+            out.close();
+            System.out.println("Backup " + f2.getName() + " complete");
+            return true;
+        } catch (FileNotFoundException ex) {
+            System.out.println(ex.getMessage() + " in the specified directory.");
+            System.exit(0);
+        } catch (IOException e) {
+            System.out.println(e.getMessage());
+        }
+        return false;
     }
 }
