@@ -15,7 +15,7 @@ import java.util.logging.Logger;
  */
 public class SystemOut {
 
-    public static void SetСharset() {
+    public static void SetCharset() {
         if (getPlatform().ordinal() == 2){
             try {
                 System.setOut(new PrintStream(System.out, true, "cp866"));

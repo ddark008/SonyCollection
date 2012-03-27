@@ -4,8 +4,8 @@ import java.io.File;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-import org.apache.log4j.Level;
-import org.apache.log4j.Logger;
+//import java.util.logging.Level;
+// java.util.logging.Logger;
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
@@ -35,11 +35,11 @@ public class App {
     @Argument
     private List<String> arguments = new ArrayList<String>();
 
-    private static final Logger log = Logger.getLogger(App.class);
+   // private static final Logger log = Logger.getLogger(App.class.getName());
 
     public static void main(String[] args) {
         //Настраиваем уровень логгера
-        log.setLevel(Level.INFO);
+      //  log.setLevel(Level.INFO);
 
         //Парсим параметры
         CmdLineParser parser = new CmdLineParser(args);
@@ -58,9 +58,10 @@ public class App {
 
 
         //Устанавливаем кодировку cp866 для Windows
-      //  SystemOut.SetСharset();
+     //   SystemOut.SetCharset();
 
-        log.info("SonyCollections запускается");
+        System.out.println("Запускается");
+     //   log.info("SonyCollections запускается");
         System.exit(0);
 
         File[] roots = File.listRoots();
@@ -87,7 +88,7 @@ public class App {
         try {
             booksPath = new File(App.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile();
         } catch (URISyntaxException ex) {
-            log.error(ex);
+       //FIXME: log.error(ex);
         }
         System.out.println("Looking collection in " + booksPath.getParentFile());
         System.out.println("Looking collection in " + booksPath);
@@ -114,7 +115,6 @@ public class App {
         //Проверяем есть ли в папке файлы
         File[] fileList = rootPath.listFiles();
         if (fileList.length > 0) {
-            //Имя коллекциии имя_1_коолекции ~ имя_2_коллекции
             String collectionName = PartName + rootPath.getName();
             int collectionID = db.getCoolectionId(collectionName);
 
