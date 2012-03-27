@@ -4,13 +4,8 @@ import java.io.File;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
-//import java.util.logging.Level;
-// java.util.logging.Logger;
-import org.kohsuke.args4j.Argument;
-import org.kohsuke.args4j.CmdLineException;
-import org.kohsuke.args4j.CmdLineParser;
-import static org.kohsuke.args4j.ExampleMode.ALL;
-import org.kohsuke.args4j.Option;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 /**
  * Hello world!
@@ -18,55 +13,43 @@ import org.kohsuke.args4j.Option;
  */
 public class App {
 
-    public static File booksDB = null;
-    public static File booksPath = null;
-    public static Sqllite db = null;
-    //Устанавливаем параметры
-    @Option(name = "-?", usage = "Наиболее подробный вывод")
-    private boolean help;
-    @Option(name = "-v", usage = "Наиболее подробный вывод")
-    private boolean verbose;
-    @Option(name = "-s", usage = "Без вывода в консоль")
-    private boolean silent;
-    @Option(name = "-t", usage = "Знак разделения названий коллекций, по умолчанию <~>")
-    private String tilde = "(default value)";
-    @Option(name = "-r", usage = "глубина <N> рекурсивного добавления книг, по умолчанию <-1> (бесконечна). Например # -r 0 # Для отключения")
-    private int recursive = -1;
-    @Argument
-    private List<String> arguments = new ArrayList<String>();
-
-   // private static final Logger log = Logger.getLogger(App.class.getName());
+    private static final Logger log = Logger.getLogger(App.class.getName());
+    private static Arguments parametres = null;
+    private static Sqllite db = null;
 
     public static void main(String[] args) {
-        //Настраиваем уровень логгера
-      //  log.setLevel(Level.INFO);
-
-        //Парсим параметры
-        CmdLineParser parser = new CmdLineParser(args);
-        try {
-            parser.parseArgument(args);
-        } catch (CmdLineException e) {
-            System.err.println(e.getMessage());
-            System.err.println("java SampleMain [options...] arguments...");
-
-            parser.printUsage(System.err);
-            System.err.println();
-
-            System.err.println(" Example: java SampleMain" + parser.printExample(ALL));
-        }
-
-
+        File booksDB = null;
+        File booksPath = null;
 
         //Устанавливаем кодировку cp866 для Windows
         SystemOut.SetCharset();
 
-        System.out.println("Запускается");
-     //   log.info("SonyCollections запускается");
-        System.exit(0);
+        Arguments parametres = new Arguments(args);
+
+
+        //Настраиваем уровень логгера
+        log.setLevel(Level.INFO);
+        if (parametres.isVerbose()) {
+            log.setLevel(Level.DEBUG);
+        }
+        if (parametres.isSilent()) {
+            log.setLevel(Level.OFF);
+        }
+
+        //Парсим параметры
+
+
+        //Показываем помощь
+        if (parametres.isHelp()) {
+            parametres.showHelp();
+        }
+
+        log.info("SonyCollections запускается...");
 
         File[] roots = File.listRoots();
         for (File file : roots) {
             File tmpPath = new File(file.getAbsolutePath() + "Sony_Reader/database/books.db");
+            log.debug(tmpPath);
             if (tmpPath.exists() && tmpPath.length() > 0) {
                 booksDB = tmpPath;
             }
@@ -78,26 +61,25 @@ public class App {
             Exit("The base collection is not available to write");
         }
 
-        System.out.print("Database init ... ");
+        log.debug("Database init ... ");
         db = new Sqllite(booksDB);
-        System.out.println("success");
+        log.debug("success");
 
-        System.out.print("Database BackUp ... ");
+        //Делаем бекап, на всякий пожарный
         db.backup(booksDB);
 
         try {
             booksPath = new File(App.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile();
         } catch (URISyntaxException ex) {
-       //FIXME: log.error(ex);
+            log.error(ex);
         }
-        System.out.println("Looking collection in " + booksPath.getParentFile());
-        System.out.println("Looking collection in " + booksPath);
+
+        log.info("Looking collection in " + booksPath);
 
         File[] fileList = booksPath.listFiles();
         for (File file : fileList) {
-
             if (file.isDirectory() && !isDirExcluded(file)) {
-                System.out.println("ROOTDIR" + file);
+                log.debug("ROOTDIR: " + file);
                 CreateCollection(file, "");
             }
         }
@@ -105,7 +87,7 @@ public class App {
     }
 
     private static void Exit(String exp) {
-        System.err.println(exp);
+        log.error(exp);
         db.close();
         System.exit(0);
     }
@@ -126,7 +108,7 @@ public class App {
             if (collectionID == -1) {
                 Exit("Error: Can't create collection");
             } else {
-                System.out.println("Collection: " + collectionName);
+                log.info("Collection: " + collectionName);
             }
 
             //Добаляем все книги в папке и подпапках рекурсивно в коллекцию
@@ -135,8 +117,8 @@ public class App {
             //Для каждой папки создаём дочернюю коллекцию вида имя_1_коолекции ~ имя_2_коллекции
             for (File file : fileList) {
                 if (file.isDirectory() && !isDirExcluded(file)) {
-                    System.out.println("CRCOLL " + file);
-                    CreateCollection(file, collectionName + " ~ ");
+                    log.debug("CRCOLL: " + file);
+                    CreateCollection(file, collectionName + " " + parametres.getTilde() + " ");
                 }
             }
         }
@@ -146,7 +128,7 @@ public class App {
         File[] fileList = rootPath.listFiles();
         for (File file : fileList) {
             if (file.isFile()) {
-                System.out.println("ADDBR" + file);
+                log.debug("ADDBR" + file);
                 addBook(file, CollectionID);
             } else if (!isDirExcluded(file)) {
                 addBooksRecursive(file, CollectionID);
@@ -159,15 +141,15 @@ public class App {
         long size = book.length();
         int ID = db.getBookID(size, name);
         if (ID < 0) {
-            System.err.println("Book don't cashed");
+            log.error("Book " + name + " don't cashed");
             return false;
         }
         if (db.bookInCollection(CollectionID, ID) > 0) {
-            System.out.println("Book " + name + " already in collection");
+            log.info("Book " + name + " already in collection");
             return true;
         } else {
             if (db.addBook(CollectionID, ID)) {
-                System.out.println("Book " + name + " added to collection");
+                log.info("Book " + name + " added to collection");
                 return true;
             }
         }

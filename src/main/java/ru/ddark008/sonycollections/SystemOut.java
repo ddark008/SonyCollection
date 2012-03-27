@@ -6,22 +6,24 @@ package ru.ddark008.sonycollections;
 
 import java.io.PrintStream;
 import java.io.UnsupportedEncodingException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 /**
  *
  * @author Java
  */
 public class SystemOut {
+private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SystemOut.class.getName());
 
     public static void SetCharset() {
+        log.setLevel(Level.INFO);
         if (getPlatform().ordinal() == 2){
             try {
                 System.setOut(new PrintStream(System.out, true, "cp866"));
                 System.setErr(new PrintStream(System.err, true, "cp866"));
             } catch (UnsupportedEncodingException ex) {
-                Logger.getLogger(SystemOut.class.getName()).log(Level.SEVERE, null, ex);
+                log.error(ex);
             }
         }
     }
