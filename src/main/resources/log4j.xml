@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE log4j:configuration SYSTEM "log4j.dtd">
+
+<log4j:configuration debug="false" xmlns:log4j="http://jakarta.apache.org/log4j/">
+
+  <appender name="ConsoleAppender" class="org.apache.log4j.ConsoleAppender">
+    <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="[%-5p] - %m%n" />
+        </layout>
+   </appender>   
+	<appender name="FileAppender" class="org.apache.log4j.RollingFileAppender">
+		<param name="File" value="SonyCollection.log"/>
+        <param name="MaxFileSize" value="100MB"/>
+        <param name="MaxBackupIndex" value="10"/>
+        <param name="Encoding" value="UTF-8"/>	
+        <layout class="org.apache.log4j.PatternLayout">
+            <param name="ConversionPattern" value="%d{ISO8601} [%-5p][%32.32c] - %m%n" />
+        </layout>
+   </appender>
+  <root>
+        <priority value="ERROR"/>
+        <appender-ref ref="ConsoleAppender" />
+		<appender-ref ref="FileAppender" />
+    </root>
+
+</log4j:configuration>

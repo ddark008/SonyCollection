@@ -2,8 +2,15 @@ package ru.ddark008.sonycollections;
 
 import java.io.File;
 import java.net.URISyntaxException;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.util.ArrayList;
+import java.util.List;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
+import org.kohsuke.args4j.Argument;
+import org.kohsuke.args4j.CmdLineException;
+import org.kohsuke.args4j.CmdLineParser;
+import static org.kohsuke.args4j.ExampleMode.ALL;
+import org.kohsuke.args4j.Option;
 
 /**
  * Hello world!
@@ -14,9 +21,47 @@ public class App {
     public static File booksDB = null;
     public static File booksPath = null;
     public static Sqllite db = null;
+    //Устанавливаем параметры
+    @Option(name = "-?", usage = "Наиболее подробный вывод")
+    private boolean help;
+    @Option(name = "-v", usage = "Наиболее подробный вывод")
+    private boolean verbose;
+    @Option(name = "-s", usage = "Без вывода в консоль")
+    private boolean silent;
+    @Option(name = "-t", usage = "Знак разделения названий коллекций, по умолчанию <~>")
+    private String tilde = "(default value)";
+    @Option(name = "-r", usage = "глубина <N> рекурсивного добавления книг, по умолчанию <-1> (бесконечна). Например # -r 0 # Для отключения")
+    private int recursive = -1;
+    @Argument
+    private List<String> arguments = new ArrayList<String>();
+
+    private static final Logger log = Logger.getLogger(App.class);
 
     public static void main(String[] args) {
-        System.out.println("SonyCollections starting..");
+        //Настраиваем уровень логгера
+        log.setLevel(Level.INFO);
+
+        //Парсим параметры
+        CmdLineParser parser = new CmdLineParser(args);
+        try {
+            parser.parseArgument(args);
+        } catch (CmdLineException e) {
+            System.err.println(e.getMessage());
+            System.err.println("java SampleMain [options...] arguments...");
+
+            parser.printUsage(System.err);
+            System.err.println();
+
+            System.err.println(" Example: java SampleMain" + parser.printExample(ALL));
+        }
+
+
+
+        //Устанавливаем кодировку cp866 для Windows
+      //  SystemOut.SetСharset();
+
+        log.info("SonyCollections запускается");
+        System.exit(0);
 
         File[] roots = File.listRoots();
         for (File file : roots) {
@@ -40,14 +85,16 @@ public class App {
         db.backup(booksDB);
 
         try {
-            booksPath = new File(App.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath());
+            booksPath = new File(App.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile();
         } catch (URISyntaxException ex) {
-            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+            log.error(ex);
         }
         System.out.println("Looking collection in " + booksPath.getParentFile());
+        System.out.println("Looking collection in " + booksPath);
 
         File[] fileList = booksPath.listFiles();
         for (File file : fileList) {
+
             if (file.isDirectory() && !isDirExcluded(file)) {
                 System.out.println("ROOTDIR" + file);
                 CreateCollection(file, "");
