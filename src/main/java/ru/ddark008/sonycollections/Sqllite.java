@@ -34,6 +34,8 @@ public class Sqllite {
 
     /**
      *
+     * @param bookSize
+     * @param bookName
      * @return
      */
     public int getBookID(long bookSize, String bookName) {
@@ -179,7 +181,7 @@ public class Sqllite {
             }
             in.close();
             out.close();
-            System.out.println("Backup " + f2.getName() + " complete");
+            System.out.println(f2.getName() + " complete");
             return true;
         } catch (FileNotFoundException ex) {
             System.out.println(ex.getMessage() + " in the specified directory.");
