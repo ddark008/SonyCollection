@@ -58,7 +58,7 @@ public class App {
 
 
         //Устанавливаем кодировку cp866 для Windows
-     //   SystemOut.SetCharset();
+        SystemOut.SetCharset();
 
         System.out.println("Запускается");
      //   log.info("SonyCollections запускается");
