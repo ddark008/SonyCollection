@@ -46,7 +46,7 @@ public class Sqllite {
             ResultSet rs = st.executeQuery();
             return rs.getInt("_id");
         } catch (SQLException ex) {
-            Logger.getLogger(Sqllite.class.getName()).log(Level.SEVERE, null, ex);
+//            Logger.getLogger(Sqllite.class.getName()).log(Level.SEVERE, null, ex);
             return -1;
         } finally {
             try {

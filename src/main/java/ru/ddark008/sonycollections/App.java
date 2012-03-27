@@ -50,11 +50,15 @@ public class App {
         } catch (URISyntaxException ex) {
             Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
         }
-        System.out.println(booksPath.getParentFile().getName());
+        System.out.println("Looking collection in " + booksPath.getParentFile());
 
-        CreateCollection(booksPath);
-
-
+        File[] fileList = booksPath.listFiles();
+        for (File file : fileList) {
+            if (file.isDirectory() && !isDirExcluded(file)) {
+                System.out.println("ROOTDIR" + file);
+                CreateCollection(file, "");
+            }
+        }
         db.close();
     }
 
@@ -64,34 +68,52 @@ public class App {
         System.exit(0);
     }
 
-    private static void CreateCollection(File rootPath) {
-        String collName = rootPath.getName();
-        int collectionID = -1;
-        if (db.getCoolectionId(collName) > 0) {
-            collectionID = db.getCoolectionId(collName);
-        } else {
-            db.addCollection(collName);
-            collectionID = db.getCoolectionId(collName);
-        }
+    private static void CreateCollection(File rootPath, String PartName) {
 
-        if (collectionID == -1) {
-            Exit("Error: Can't create collection");
-        } else {
-            System.out.println("Collection: " + collName);
-        }
-
+        //Проверяем есть ли в папке файлы
         File[] fileList = rootPath.listFiles();
-        for (File file : fileList) {
-            System.out.println(file);
-            if (file.isFile()) {
-                addBook(file, collectionID);
+        if (fileList.length > 0) {
+            //Имя коллекциии имя_1_коолекции ~ имя_2_коллекции
+            String collectionName = PartName + rootPath.getName();
+            int collectionID = db.getCoolectionId(collectionName);
+
+            if (collectionID < 0) {
+                collectionID = db.addCollection(collectionName);
+            }
+
+            //Если не удалось создать коллекцию
+            if (collectionID == -1) {
+                Exit("Error: Can't create collection");
             } else {
-                CreateCollection(file);
+                System.out.println("Collection: " + collectionName);
+            }
+
+            //Добаляем все книги в папке и подпапках рекурсивно в коллекцию
+            addBooksRecursive(rootPath, collectionID);
+
+            //Для каждой папки создаём дочернюю коллекцию вида имя_1_коолекции ~ имя_2_коллекции
+            for (File file : fileList) {
+                if (file.isDirectory() && !isDirExcluded(file)) {
+                    System.out.println("CRCOLL " + file);
+                    CreateCollection(file, collectionName + " ~ ");
+                }
             }
         }
-
     }
-    private static boolean addBook(File book, int CollectionID){
+
+    private static void addBooksRecursive(File rootPath, int CollectionID) {
+        File[] fileList = rootPath.listFiles();
+        for (File file : fileList) {
+            if (file.isFile()) {
+                System.out.println("ADDBR" + file);
+                addBook(file, CollectionID);
+            } else if (!isDirExcluded(file)) {
+                addBooksRecursive(file, CollectionID);
+            }
+        }
+    }
+
+    private static boolean addBook(File book, int CollectionID) {
         String name = book.getName();
         long size = book.length();
         int ID = db.getBookID(size, name);
@@ -111,5 +133,13 @@ public class App {
 
         return false;
 
+    }
+
+    private static boolean isDirExcluded(File dir) {
+        //TODO: Добавить чтение из файла, убрать ru
+        if (dir.getName().startsWith("~!") || dir.getName().startsWith("ru")) {
+            return true;
+        }
+        return false;
     }
 }
