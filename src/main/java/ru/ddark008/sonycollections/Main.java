@@ -46,14 +46,6 @@ public class Main {
         Sqllite.setLog(Level.INFO);
         IgnoredDirs.setLog(Level.INFO);
 
-        //FIXME: Дикое извращение, чтобы логи писались в ту же папку где и прога
-        try {
-            booksPath = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile();
-        } catch (URISyntaxException ex) {
-            log.error(ex);
-        }
-        System.setProperty("user.dir",booksPath.getPath());
-
         //Парсим параметры
         parametres = new Arguments(args);
 
@@ -98,6 +90,12 @@ public class Main {
 
         //Делаем бекап, на всякий пожарный
         db.backup(booksDB);
+
+        try {
+            booksPath = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile();
+        } catch (URISyntaxException ex) {
+            log.error(ex);
+        }
 
         //Парсим папки исключения
         ignor = new IgnoredDirs(booksPath);
