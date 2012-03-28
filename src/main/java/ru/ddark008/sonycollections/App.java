@@ -24,16 +24,23 @@ public class App {
         //Устанавливаем кодировку cp866 для Windows
         SystemOut.SetCharset();
 
-        Arguments parametres = new Arguments(args);
-
+        parametres = new Arguments(args);
 
         //Настраиваем уровень логгера
-        log.setLevel(Level.INFO);
+          log.setLevel(Level.INFO);
+          SystemOut.setLog(Level.INFO);
+          Sqllite.setLog(Level.INFO);
+
         if (parametres.isVerbose()) {
             log.setLevel(Level.DEBUG);
+            SystemOut.setLog(Level.DEBUG);
+            Sqllite.setLog(Level.DEBUG);
         }
+
         if (parametres.isSilent()) {
             log.setLevel(Level.OFF);
+            SystemOut.setLog(Level.OFF);
+          Sqllite.setLog(Level.OFF);
         }
 
         //Парсим параметры
@@ -49,7 +56,7 @@ public class App {
         File[] roots = File.listRoots();
         for (File file : roots) {
             File tmpPath = new File(file.getAbsolutePath() + "Sony_Reader/database/books.db");
-            log.debug(tmpPath);
+            log.debug("Looking database " + tmpPath);
             if (tmpPath.exists() && tmpPath.length() > 0) {
                 booksDB = tmpPath;
             }
@@ -112,6 +119,7 @@ public class App {
             }
 
             //Добаляем все книги в папке и подпапках рекурсивно в коллекцию
+            if (!parametres.getRecursive())
             addBooksRecursive(rootPath, collectionID);
 
             //Для каждой папки создаём дочернюю коллекцию вида имя_1_коолекции ~ имя_2_коллекции
@@ -161,6 +169,7 @@ public class App {
     private static boolean isDirExcluded(File dir) {
         //TODO: Добавить чтение из файла, убрать ru
         if (dir.getName().startsWith("~!") || dir.getName().startsWith("ru")) {
+            log.info("Directory " + dir + " excluded");
             return true;
         }
         return false;

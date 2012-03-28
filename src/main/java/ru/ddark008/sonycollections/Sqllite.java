@@ -7,8 +7,8 @@ package ru.ddark008.sonycollections;
 import java.io.*;
 import java.sql.*;
 import java.text.SimpleDateFormat;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import org.apache.log4j.Level;
+import org.apache.log4j.Logger;
 
 /**
  *
@@ -16,19 +16,27 @@ import java.util.logging.Logger;
  */
 public class Sqllite {
 
+    private static Logger log = Logger.getLogger(Sqllite.class.getName());
+
+    /**
+     * @param aLog the log to set
+     */
+    public static void setLog(Level lv) {
+        log.setLevel(lv);
+    }
+
     private Connection connection = null;
 
     public Sqllite(File db) {
         try {
             Class.forName("org.sqlite.JDBC");
         } catch (ClassNotFoundException ex) {
-            Logger.getLogger(App.class.getName()).log(Level.SEVERE, null, ex);
+            log.error(ex);
         }
         try {
-            // create a database connection
             connection = DriverManager.getConnection("jdbc:sqlite:" + db);
         } catch (SQLException e) {
-            System.err.println(e.getMessage());
+            log.error(e.getMessage());
         }
     }
 
@@ -48,13 +56,13 @@ public class Sqllite {
             ResultSet rs = st.executeQuery();
             return rs.getInt("_id");
         } catch (SQLException ex) {
-//            Logger.getLogger(Sqllite.class.getName()).log(Level.SEVERE, null, ex);
+            log.debug(ex);
             return -1;
         } finally {
             try {
                 st.close();
             } catch (SQLException ex) {
-                Logger.getLogger(Sqllite.class.getName()).log(Level.SEVERE, null, ex);
+                log.error(ex);
             }
         }
     }
@@ -70,11 +78,12 @@ public class Sqllite {
 
 
         } catch (SQLException ex) {
+            log.debug(ex);
         } finally {
             try {
                 st.close();
             } catch (SQLException ex) {
-                Logger.getLogger(Sqllite.class.getName()).log(Level.SEVERE, null, ex);
+                log.error(ex);
             }
         }
         return -1;
@@ -99,11 +108,12 @@ public class Sqllite {
             return rs.getInt("_id");
 
         } catch (SQLException ex) {
+            log.error(ex);
         } finally {
             try {
                 st.close();
             } catch (SQLException ex) {
-                Logger.getLogger(Sqllite.class.getName()).log(Level.SEVERE, null, ex);
+                log.error(ex);
             }
         }
         return -1;
@@ -121,11 +131,12 @@ public class Sqllite {
 
 
         } catch (SQLException ex) {
+            log.debug(ex);
         } finally {
             try {
                 st.close();
             } catch (SQLException ex) {
-                Logger.getLogger(Sqllite.class.getName()).log(Level.SEVERE, null, ex);
+                log.error(ex);
             }
         }
         return -1;
@@ -141,11 +152,12 @@ public class Sqllite {
             st.executeUpdate();
             return true;
         } catch (SQLException ex) {
+            log.error(ex);
         } finally {
             try {
                 st.close();
             } catch (SQLException ex) {
-                Logger.getLogger(Sqllite.class.getName()).log(Level.SEVERE, null, ex);
+                log.error(ex);
             }
         }
         return false;
@@ -160,17 +172,21 @@ public class Sqllite {
                 connection.close();
             }
         } catch (SQLException e) {
-            // connection close failed.
-            System.err.println(e);
+            log.error(e);
         }
     }
 
     public boolean backup(File f1) {
         try {
             java.util.Date today = new java.util.Date();
-            SimpleDateFormat formatter = new SimpleDateFormat("yyyy.MMM.dd.HH.mm.ss");
+            SimpleDateFormat formatter = new SimpleDateFormat("ss.mm.HH.dd.MM.yyyy");
             String formattedDate = formatter.format(today);
-            File f2 = new File(f1.getParentFile() +"/"+ formattedDate +  " " + f1.getName());
+
+            File f2 = new File(f1.getParentFile() + "/" + formattedDate + " " + f1.getName());
+
+            log.debug("Input file " + f1.getAbsolutePath());
+            log.debug("Output file " + f2.getAbsolutePath());
+
             InputStream in = new FileInputStream(f1);
             OutputStream out = new FileOutputStream(f2, true);
 
@@ -181,13 +197,13 @@ public class Sqllite {
             }
             in.close();
             out.close();
-            System.out.println(f2.getName() + " complete");
+            log.info("Backup database " + f2.getName() + " complete");
             return true;
         } catch (FileNotFoundException ex) {
-            System.out.println(ex.getMessage() + " in the specified directory.");
+            log.fatal(ex.getMessage() + " in the specified directory.");
             System.exit(0);
         } catch (IOException e) {
-            System.out.println(e.getMessage());
+            log.error(e.getMessage());
         }
         return false;
     }

@@ -20,7 +20,7 @@ import static org.kohsuke.args4j.ExampleMode.ALL;
 public class Arguments {
     //Устанавливаем параметры
 
-    @Option(name = "-?", usage = "Наиболее подробный вывод")
+    @Option(name = "-?", usage = "Help")
     private boolean help;
     @Option(name = "-v", usage = "Наиболее подробный вывод")
     private boolean verbose;
@@ -28,8 +28,8 @@ public class Arguments {
     private boolean silent;
     @Option(name = "-t", usage = "Знак разделения названий коллекций, по умолчанию <~>")
     private String tilde = "~";
-    @Option(name = "-r", usage = "глубина <N> рекурсивного добавления книг, по умолчанию <-1> (бесконечна). Например # -r 0 # Для отключения")
-    private int recursive = -1;
+    @Option(name = "-nonr", usage = "Не добавлять в коллекцию книги из подпапок")
+    private boolean nonrecursive;
     @Argument
     private List<String> arguments = new ArrayList<String>();
     CmdLineParser parser = null;
@@ -82,7 +82,7 @@ public class Arguments {
     /**
      * @return the recursive
      */
-    public int getRecursive() {
-        return recursive;
+    public boolean getRecursive() {
+        return nonrecursive;
     }
 }

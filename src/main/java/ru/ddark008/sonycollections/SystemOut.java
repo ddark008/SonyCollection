@@ -14,14 +14,15 @@ import org.apache.log4j.Logger;
  * @author Java
  */
 public class SystemOut {
-private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLogger(SystemOut.class.getName());
+private static Logger log = Logger.getLogger(SystemOut.class.getName());
 
     public static void SetCharset() {
-        log.setLevel(Level.INFO);
+        log.debug("System " + getPlatform());
         if (getPlatform().ordinal() == 2){
             try {
                 System.setOut(new PrintStream(System.out, true, "cp866"));
                 System.setErr(new PrintStream(System.err, true, "cp866"));
+                log.debug("Encoded change from UTF-8 to cp866");
             } catch (UnsupportedEncodingException ex) {
                 log.error(ex);
             }
@@ -44,6 +45,13 @@ private static final org.apache.log4j.Logger log = org.apache.log4j.Logger.getLo
 			return OS.linux;
 		return OS.unknown;
 	}
+
+    /**
+     * @param aLog the log to set
+     */
+    public static void setLog(Level lv) {
+        log.setLevel(lv);
+    }
 
     private static enum OS {
 		linux, solaris, windows, macos, unknown;
