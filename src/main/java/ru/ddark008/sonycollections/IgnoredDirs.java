@@ -29,8 +29,8 @@ public class IgnoredDirs {
     private static List<String> wordList = new ArrayList<String>();
     private static final Logger log = Logger.getLogger(IgnoredDirs.class.getName());
 
-    public IgnoredDirs() {
-        File list = new File("scignore.txt");
+    public IgnoredDirs(File rootDir) {
+        File list = new File(rootDir + "/scignore.txt");
 
         log.debug(list.getAbsoluteFile());
 
@@ -41,8 +41,9 @@ public class IgnoredDirs {
                 while ((line = br.readLine()) != null) {
                     if (!line.startsWith("#")) {
                         wordList.add(line);
+                        log.debug(MessageFormat.format(Main.localization.getString("WORLD {0}ADDED TO IGNOR"), line));
                     }
-                    log.debug(MessageFormat.format(Main.localization.getString("WORLD {0}ADDED TO IGNOR"), line));
+
                 }
                 br.close();
             } catch (Exception e) {
