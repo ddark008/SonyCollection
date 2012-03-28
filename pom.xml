@@ -5,7 +5,7 @@
 
     <groupId>ru.ddark008</groupId>
     <artifactId>SonyCollections</artifactId>
-    <version>0.8-SNAPSHOT</version>
+    <version>1.0</version>
     <packaging>jar</packaging>
 
     <name>SonyCollections</name>
@@ -21,7 +21,7 @@
                 <configuration>
                     <archive>
                         <manifestEntries>
-                            <Main-Class>ru.ddark008.sonycollections.App</Main-Class>
+                            <Main-Class>ru.ddark008.sonycollections.Main</Main-Class>
                         </manifestEntries>
                     </archive>
                 </configuration>

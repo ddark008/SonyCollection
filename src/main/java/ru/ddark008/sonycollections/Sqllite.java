@@ -1,31 +1,36 @@
 /*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
+ * Copyright 2012 ddark008.
+ *
+ * This work is licensed under the Creative Commons Attribution-NonCommercial-ShareAlike 3.0 Unported License.
+ * To view a copy of this license, visit http://creativecommons.org/licenses/by-nc-sa/3.0/
+ * or send a letter to Creative Commons, 444 Castro Street, Suite 900, Mountain View, California, 94041, USA.
+ *
+ * You are free:
+ * to Share — to copy, distribute and transmit the work
+ * to Remix — to adapt the work
  */
 package ru.ddark008.sonycollections;
 
+/**
+ * @mail dev@ddark008.ru
+ *
+ * @author ddark008
+ */
 import java.io.*;
 import java.sql.*;
+import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
-/**
- *
- * @author Java
- */
 public class Sqllite {
 
+    private Connection connection = null;
     private static Logger log = Logger.getLogger(Sqllite.class.getName());
 
-    /**
-     * @param aLog the log to set
-     */
     public static void setLog(Level lv) {
         log.setLevel(lv);
     }
-
-    private Connection connection = null;
 
     public Sqllite(File db) {
         try {
@@ -184,8 +189,8 @@ public class Sqllite {
 
             File f2 = new File(f1.getParentFile() + "/" + formattedDate + " " + f1.getName());
 
-            log.debug("Input file " + f1.getAbsolutePath());
-            log.debug("Output file " + f2.getAbsolutePath());
+            log.debug(MessageFormat.format(Main.localization.getString("INPUT FILE {0}"), f1.getAbsolutePath()));
+            log.debug(MessageFormat.format(Main.localization.getString("OUTPUT FILE {0}"), f2.getAbsolutePath()));
 
             InputStream in = new FileInputStream(f1);
             OutputStream out = new FileOutputStream(f2, true);
@@ -197,10 +202,10 @@ public class Sqllite {
             }
             in.close();
             out.close();
-            log.info("Backup database " + f2.getName() + " complete");
+            log.info(MessageFormat.format(Main.localization.getString("BACKUP DATABASE {0} COMPLETE"), f2.getName()));
             return true;
         } catch (FileNotFoundException ex) {
-            log.fatal(ex.getMessage() + " in the specified directory.");
+            log.fatal(ex.getMessage() + Main.localization.getString(" IN THE SPECIFIED DIRECTORY."));
             System.exit(0);
         } catch (IOException e) {
             log.error(e.getMessage());
