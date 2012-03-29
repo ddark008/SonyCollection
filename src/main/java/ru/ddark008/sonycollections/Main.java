@@ -70,7 +70,7 @@ public class Main {
         }
 
         //Выводим инфу о системе
-        log.debug(System.getProperty("os.name") + " " + System.getProperty("os.arch") + " " + System.getProperty("java.version"));
+        log.debug(System.getProperty("os.name") + " " + System.getProperty("os.arch") + " "  + Locale.getDefault() +" " + System.getProperty("java.version"));
 
         //Устанавливаем кодировку cp866 для Windows
         SystemOut.SetCharset();
