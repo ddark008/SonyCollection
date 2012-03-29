@@ -17,6 +17,7 @@ import java.text.MessageFormat;
 import java.util.ArrayList;
 import java.util.Locale;
 import java.util.ResourceBundle;
+import java.util.Scanner;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -38,12 +39,11 @@ public class Main {
         File booksPath = null;
 
         //Устанавливаем перевод
-        //TODO: Закончить перевод и добавить его
-        Locale ru_Ru = new Locale("ru","RU");
+        Locale ru_Ru = new Locale("ru", "RU");
         if (Locale.getDefault().equals(ru_Ru)) {
             localization = ResourceBundle.getBundle("localization/ru");
         } else {
-              localization = ResourceBundle.getBundle("localization/en");
+            localization = ResourceBundle.getBundle("localization/en");
         }
 
         //Настраиваем уровень логгера
@@ -70,11 +70,10 @@ public class Main {
         }
 
         //Выводим инфу о системе
-        log.debug(System.getProperty("os.name") + " " + System.getProperty("os.arch") + " "  + Locale.getDefault() +" " + System.getProperty("java.version"));
+        log.debug(System.getProperty("os.name") + " " + System.getProperty("os.arch") + " " + Locale.getDefault() + " " + System.getProperty("java.version"));
 
         //Устанавливаем кодировку cp866 для Windows
         SystemOut.SetCharset();
-
 
         //Показываем помощь
         if (parametres.isHelp()) {
@@ -83,20 +82,29 @@ public class Main {
 
         log.info(localization.getString("SONYCOLLECTIONS STARTING..."));
 
+        //Получаем расположение программы
+        try {
+            booksPath = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile();
+        } catch (URISyntaxException ex) {
+            log.error(ex);
+        }
+
+        // Сопоставляем список дисков с расположением программы и ищём БД
         File[] roots = File.listRoots();
         for (File file : roots) {
-            File tmpPath = new File(file.getAbsolutePath() + "Sony_Reader/database/books.db");
-            log.debug(MessageFormat.format(localization.getString("LOOKING DATABASE {0}"), tmpPath));
-            if (tmpPath.exists() && tmpPath.length() > 0) {
-                booksDB = tmpPath;
+            if (booksPath.getPath().startsWith(file.getPath())) {
+                booksDB = new File(file + "/Sony_Reader/database/books.db");;
             }
         }
-        if (booksDB == null) {
+
+        if (booksDB == null || !booksDB.isFile() || booksDB.length() <= 0) {
             Exit(localization.getString("THE BASE COLLECTION IS NOT FOUND, CONNECT THE BOOK"));
         }
-        if (!booksDB.canWrite()) {
+        if (!booksDB.canWrite() || !booksDB.canRead()) {
             Exit(localization.getString("THE BASE COLLECTION IS NOT AVAILABLE TO WRITE"));
         }
+
+        log.info("Data base: " + booksDB);
 
         log.debug(localization.getString("DATABASE INIT ... "));
         db = new Sqllite(booksDB);
@@ -105,17 +113,10 @@ public class Main {
         //Делаем бекап, на всякий пожарный
         db.backup(booksDB);
 
-         // Удаляем коллекции по требованию
-        if (parametres.isDelete()){
+        // Удаляем коллекции по требованию
+        if (parametres.isDelete()) {
             DeleteEmptyCollections();
             Exit(localization.getString("SUCCESS"));
-        }
-
-
-        try {
-            booksPath = new File(Main.class.getProtectionDomain().getCodeSource().getLocation().toURI().getPath()).getParentFile();
-        } catch (URISyntaxException ex) {
-            log.error(ex);
         }
 
         //Парсим папки исключения
@@ -209,13 +210,13 @@ public class Main {
         return false;
     }
 
-    private static void DeleteEmptyCollections(){
+    private static void DeleteEmptyCollections() {
         ArrayList<Integer> collList = db.getCollectionsID();
-        for (int i : collList){
-            if (!db.isCollectionHaveBooks(i)){
-               log.info(MessageFormat.format(localization.getString("COLLECTION {0}DELETED"), db.getCoolectionName(i) ));
+        for (int i : collList) {
+            if (!db.isCollectionHaveBooks(i)) {
+                log.info(MessageFormat.format(localization.getString("COLLECTION {0}DELETED"), db.getCoolectionName(i)));
                 db.deleteCollection(i);
             }
-     }
+        }
     }
 }
