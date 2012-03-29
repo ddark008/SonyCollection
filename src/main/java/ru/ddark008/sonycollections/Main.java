@@ -41,7 +41,9 @@ public class Main {
         //TODO: Закончить перевод и добавить его
         Locale ru_Ru = new Locale("ru","RU");
         if (Locale.getDefault().equals(ru_Ru)) {
-            localization = ResourceBundle.getBundle("localization/en");
+            localization = ResourceBundle.getBundle("localization/ru");
+        } else {
+              localization = ResourceBundle.getBundle("localization/en");
         }
 
         //Настраиваем уровень логгера
@@ -211,7 +213,7 @@ public class Main {
         ArrayList<Integer> collList = db.getCollectionsID();
         for (int i : collList){
             if (!db.isCollectionHaveBooks(i)){
-               log.info(MessageFormat.format(localization.getString("DELETE {0}"), db.getCoolectionName(i) ));
+               log.info(MessageFormat.format(localization.getString("COLLECTION {0}DELETED"), db.getCoolectionName(i) ));
                 db.deleteCollection(i);
             }
      }
