@@ -51,6 +51,7 @@ public class IgnoredDirs {
             }
         } else {
             try {
+                log.debug(Main.localization.getString("IGNORE LIST IS NOT FOUND, CREATE A NEW"));
                 list.createNewFile();
                 BufferedWriter bw = new BufferedWriter(new FileWriter(list, true));
                 bw.write(Main.localization.getString("ignore_file_str_1"));
@@ -75,7 +76,8 @@ public class IgnoredDirs {
     }
 
     /**
-     * @param aLog the log to set
+     * @param lv
+     *
      */
     public static void setLog(Level lv) {
         log.setLevel(lv);

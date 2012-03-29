@@ -17,15 +17,16 @@ import java.util.List;
 import org.kohsuke.args4j.Argument;
 import org.kohsuke.args4j.CmdLineException;
 import org.kohsuke.args4j.CmdLineParser;
-import org.kohsuke.args4j.Option;
 import static org.kohsuke.args4j.ExampleMode.ALL;
+import org.kohsuke.args4j.Option;
 
 /**
  * @mail dev@ddark008.ru
- *
  * @author ddark008
+ *
+ *  Парсит параметры программы, выводит help.
  */
-public class Arguments {
+public final class Arguments {
     //Устанавливаем параметры
 
     @Option(name = "-?", usage = "Help")
@@ -34,12 +35,15 @@ public class Arguments {
     private boolean verbose;
     @Option(name = "-s", usage = "Без вывода в консоль")
     private boolean silent;
+    @Option(name = "-d", usage = "Только удалить пустые коллекции, ничего не добавлять")
+    private boolean delete;
     @Option(name = "-t", usage = "Знак разделения названий коллекций, по умолчанию <~>")
     private String tilde = "~";
     @Option(name = "-nonr", usage = "Не добавлять в коллекцию книги из подпапок")
     private boolean nonrecursive;
     @Argument
     private List<String> arguments = new ArrayList<String>();
+
     CmdLineParser parser = null;
 
     public Arguments(String[] args) {
@@ -51,6 +55,9 @@ public class Arguments {
         }
     }
 
+    /**
+     *  Вы водит  help в консоль через System.err и завершает работу
+     */
     public void showHelp() {
         System.err.println("java SonyCollections [options...] arguments...");
         parser.printUsage(System.err);
@@ -92,5 +99,12 @@ public class Arguments {
      */
     public boolean getRecursive() {
         return nonrecursive;
+    }
+
+    /**
+     * @return the delete
+     */
+    public boolean isDelete() {
+        return delete;
     }
 }

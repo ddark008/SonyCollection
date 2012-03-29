@@ -18,8 +18,9 @@ import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
 /**
+ * @mail dev@ddark008.ru
  *
- * @author Java
+ * @author ddark008
  */
 public class SystemOut {
 
@@ -61,15 +62,11 @@ public class SystemOut {
         return OS.unknown;
     }
 
-    /**
-     * @param aLog the log to set
-     */
     public static void setLog(Level lv) {
         log.setLevel(lv);
     }
 
     private static enum OS {
-
         linux, solaris, windows, macos, unknown;
     }
 }

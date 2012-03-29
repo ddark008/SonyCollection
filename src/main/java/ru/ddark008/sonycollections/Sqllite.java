@@ -20,6 +20,9 @@ import java.io.*;
 import java.sql.*;
 import java.text.MessageFormat;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import org.apache.log4j.Level;
 import org.apache.log4j.Logger;
 
@@ -80,8 +83,6 @@ public class Sqllite {
             st.setQueryTimeout(30);
             ResultSet rs = st.executeQuery();
             return rs.getInt("_id");
-
-
         } catch (SQLException ex) {
             log.debug(ex);
         } finally {
@@ -92,6 +93,26 @@ public class Sqllite {
             }
         }
         return -1;
+    }
+
+    public String getCoolectionName(int CollectionsID) {
+        PreparedStatement st = null;
+        try {
+            st = connection.prepareStatement("SELECT title FROM collection WHERE  _id = ?");
+            st.setInt(1, CollectionsID);
+            st.setQueryTimeout(30);
+            ResultSet rs = st.executeQuery();
+            return rs.getString(1);
+        } catch (SQLException ex) {
+            log.debug(ex);
+        } finally {
+            try {
+                st.close();
+            } catch (SQLException ex) {
+                log.error(ex);
+            }
+        }
+        return Main.localization.getString("THE INVISIBLE COLLECTION");
     }
 
     /**
@@ -111,7 +132,6 @@ public class Sqllite {
             st.setString(1, CollName);
             ResultSet rs = st.executeQuery();
             return rs.getInt("_id");
-
         } catch (SQLException ex) {
             log.error(ex);
         } finally {
@@ -124,7 +144,7 @@ public class Sqllite {
         return -1;
     }
 
-    public int bookInCollection(int ColId, int BookId) {
+    public int isBookInCollection(int ColId, int BookId) {
         PreparedStatement st = null;
         try {
             st = connection.prepareStatement("SELECT _id FROM collections WHERE content_id = ? AND collection_id = ?");
@@ -133,8 +153,6 @@ public class Sqllite {
             st.setQueryTimeout(30);
             ResultSet rs = st.executeQuery();
             return rs.getInt("_id");
-
-
         } catch (SQLException ex) {
             log.debug(ex);
         } finally {
@@ -145,6 +163,78 @@ public class Sqllite {
             }
         }
         return -1;
+    }
+
+    public boolean isCollectionHaveBooks(int ColId) {
+        PreparedStatement st = null;
+        try {
+            st = connection.prepareStatement("SELECT content_id FROM collections WHERE collection_id = ?");
+            st.setInt(1, ColId);
+            st.setQueryTimeout(30);
+            ResultSet rs = st.executeQuery();
+            rs.getInt(1);
+            return true;
+        } catch (SQLException ex) {
+            log.debug(ex);
+        } finally {
+            try {
+                st.close();
+            } catch (SQLException ex) {
+                log.error(ex);
+            }
+        }
+        return false;
+    }
+
+    /**
+     * Возвращает список ID всех коллекций
+     *
+     * @return
+     */
+    public ArrayList<Integer> getCollectionsID() {
+        PreparedStatement st = null;
+        ArrayList<Integer> collList = new ArrayList<Integer>();
+        try {
+            st = connection.prepareStatement("SELECT _id FROM collection");
+            st.setQueryTimeout(30);
+            ResultSet rs = st.executeQuery();
+            while (rs.next()) {
+                collList.add(rs.getInt(1));
+                log.debug(MessageFormat.format(Main.localization.getString("COLLECTIONS FIND : {0}"), rs.getInt(1)));
+            }
+            return collList;
+        } catch (SQLException ex) {
+            log.debug(ex);
+        } finally {
+            try {
+                st.close();
+            } catch (SQLException ex) {
+                log.error(ex);
+            }
+        }
+        return collList;
+
+    }
+
+    public boolean deleteCollection(int CollId) {
+        PreparedStatement st = null;
+        try {
+            st = connection.prepareStatement("DELETE FROM collection  WHERE _id = ?");
+            st.setInt(1, CollId);
+            st.setQueryTimeout(30);
+            st.executeUpdate();
+            log.debug(MessageFormat.format(Main.localization.getString("COLLECTION {0}DELETED"), CollId));
+            return true;
+        } catch (SQLException ex) {
+            log.error(ex);
+        } finally {
+            try {
+                st.close();
+            } catch (SQLException ex) {
+                log.error(ex);
+            }
+        }
+        return false;
     }
 
     public boolean addBook(int CollId, int BookId) {
@@ -168,9 +258,6 @@ public class Sqllite {
         return false;
     }
 
-    /**
-     *
-     */
     public void close() {
         try {
             if (connection != null) {
@@ -183,8 +270,22 @@ public class Sqllite {
 
     public boolean backup(File f1) {
         try {
+            //Удаляем старые архивы оставляем последние 5
+            File[] root = f1.getParentFile().listFiles();
+            ArrayList<File> v = new ArrayList();
+            for (File file: root) {
+                if (file.getName().endsWith(" books.db")) {
+                    v.add(file);
+                }
+                }
+            Collections.sort(v);
+            for (int i = 1; i <= v.size() -5; i++ ){
+                v.get(i).delete();
+                log.debug(MessageFormat.format(Main.localization.getString("BACKUP {0} DETETED"), v.get(i)));
+            }
+
             java.util.Date today = new java.util.Date();
-            SimpleDateFormat formatter = new SimpleDateFormat("ss.mm.HH.dd.MM.yyyy");
+            SimpleDateFormat formatter = new SimpleDateFormat("yyyy.MM.dd.HH.mm.ss");
             String formattedDate = formatter.format(today);
 
             File f2 = new File(f1.getParentFile() + "/" + formattedDate + " " + f1.getName());

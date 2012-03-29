@@ -7,6 +7,11 @@ therefore it is assumed to be part of version control checkout.
 Without this configuration present, some functionality in the IDE may be limited or fail altogether.
 -->
     <config-data xmlns="http://www.netbeans.org/ns/maven-config-data/1">
-        <configurations/>
+        <configurations>
+            <configuration id="Debug" profiles=""/>
+        </configurations>
     </config-data>
+    <spellchecker-wordlist xmlns="http://www.netbeans.org/ns/spellchecker-wordlist/1">
+        <word>завершает</word>
+    </spellchecker-wordlist>
 </project-shared-configuration>
