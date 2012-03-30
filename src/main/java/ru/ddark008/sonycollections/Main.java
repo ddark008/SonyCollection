@@ -38,14 +38,6 @@ public class Main {
         File booksDB = null;
         File booksPath = null;
 
-        //Устанавливаем перевод
-        Locale ru_Ru = new Locale("ru", "RU");
-        if (Locale.getDefault().equals(ru_Ru)) {
-            localization = ResourceBundle.getBundle("localization/ru");
-        } else {
-            localization = ResourceBundle.getBundle("localization/en");
-        }
-
         //Настраиваем уровень логгера
         log.setLevel(Level.INFO);
         SystemOut.setLog(Level.INFO);
@@ -54,6 +46,21 @@ public class Main {
 
         //Парсим параметры
         parametres = new Arguments(args);
+
+        //Устанавливаем перевод
+        Locale ru_Ru = new Locale("ru", "RU");
+        if (Locale.getDefault().equals(ru_Ru)) {
+            localization = ResourceBundle.getBundle("localization/ru");
+        } else {
+            localization = ResourceBundle.getBundle("localization/en");
+        }
+
+        if (parametres.getLang().equals(Lang.en)) {
+            localization = ResourceBundle.getBundle("localization/en");
+        }
+        if (parametres.getLang().equals(Lang.ru)) {
+            localization = ResourceBundle.getBundle("localization/ru");
+        }
 
         if (parametres.isVerbose()) {
             log.setLevel(Level.DEBUG);
@@ -89,13 +96,19 @@ public class Main {
             log.error(ex);
         }
 
-        // Сопоставляем список дисков с расположением программы и ищём БД
-        File[] roots = File.listRoots();
-        for (File file : roots) {
-            if (booksPath.getPath().startsWith(file.getPath())) {
-                booksDB = new File(file + "/Sony_Reader/database/books.db");;
+        if (parametres.getHdd() != null) {
+            booksDB = new File(parametres.getHdd() + ":/Sony_Reader/database/books.db");
+        } else {
+            // Сопоставляем список дисков с расположением программы и ищём БД
+            File[] roots = File.listRoots();
+            for (File file : roots) {
+                if (booksPath.getPath().startsWith(file.getPath())) {
+                    booksDB = new File(file + "/Sony_Reader/database/books.db");
+                }
             }
         }
+
+        log.debug("Base data: " + booksDB);
 
         if (booksDB == null || !booksDB.isFile() || booksDB.length() <= 0) {
             Exit(localization.getString("THE BASE COLLECTION IS NOT FOUND, CONNECT THE BOOK"));
@@ -141,7 +154,9 @@ public class Main {
     private static void Exit(String exp) {
         log.error(exp);
         //Корректно завершаем работу с БД
-        db.close();
+        if (db != null) {
+            db.close();
+        }
         System.exit(0);
     }
 

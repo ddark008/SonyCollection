@@ -20,6 +20,7 @@ import org.kohsuke.args4j.CmdLineParser;
 import static org.kohsuke.args4j.ExampleMode.ALL;
 import org.kohsuke.args4j.Option;
 
+
 /**
  * @mail dev@ddark008.ru
  * @author ddark008
@@ -29,18 +30,23 @@ import org.kohsuke.args4j.Option;
 public final class Arguments {
     //Устанавливаем параметры
 
-    @Option(name = "-?", usage = "Help")
+    @Option(name = "-?",aliases =  "--help" , usage = "Help")
     private boolean help;
-    @Option(name = "-v", usage = "Наиболее подробный вывод")
+    @Option(name = "-v", aliases = "--verbose", usage = "Наиболее подробный вывод")
     private boolean verbose;
-    @Option(name = "-s", usage = "Без вывода в консоль")
+    @Option(name = "-s", aliases = "--silent", usage = "Без вывода в консоль")
     private boolean silent;
-    @Option(name = "-d", usage = "Только удалить пустые коллекции, ничего не добавлять")
+    @Option(name = "-d",  aliases = "--delete", usage = "Только удалить пустые коллекции, ничего не добавлять")
     private boolean delete;
-    @Option(name = "-t", usage = "Знак разделения названий коллекций, по умолчанию <~>")
+    @Option(name = "-t", aliases = "--tilde",  usage = "Знак разделения названий коллекций, по умолчанию <~>")
     private String tilde = "~";
-    @Option(name = "-nonr", usage = "Не добавлять в коллекцию книги из подпапок")
+    @Option(name = "-nonr",  aliases = "--nonrecursive",  usage = "Не добавлять в коллекцию книги из подпапок")
     private boolean nonrecursive;
+    @Option(name="-l",  aliases = "--lang",  usage = "Принудительный выбор языка" )
+     private Lang lang = Lang.none;
+    @Option(name = "-h", aliases = "--hdd",  usage = "Буква диска на котором расположена БД (ридер)")
+    private String hdd = null;
+
     @Argument
     private List<String> arguments = new ArrayList<String>();
 
@@ -107,4 +113,19 @@ public final class Arguments {
     public boolean isDelete() {
         return delete;
     }
+
+    /**
+     * @return the lang
+     */
+    public Lang getLang() {
+        return lang;
+    }
+
+    /**
+     * @return the hdd
+     */
+    public String getHdd() {
+        return hdd;
+    }
 }
+enum Lang { ru, en, none }
