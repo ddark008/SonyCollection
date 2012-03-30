@@ -63,6 +63,12 @@ h3. v 1.1.1
 
 * Теперь SC ищет БД на то же диске, где была запущена
 
+h3. v 1.1.2
+
+* Добавил новые аргументы -l (принудительная установка локали) и -h (принудительная установка диска ридера)
+* Добавил полные варианты аргументам
+* Исправил баг с БД при аварийном завершении
+
 h2. ToDo List
 
 * Написать документацию
@@ -81,4 +87,4 @@ You are free:
 * o Remix — to adapt the work
 
 ---------------------------------
-You can read more about this license [here](http://creativecommons.org/licenses/by-nc-sa/3.0/)
+You can read more about this license "here":http://creativecommons.org/licenses/by-nc-sa/3.0/
