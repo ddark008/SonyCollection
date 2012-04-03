@@ -30,13 +30,13 @@ import org.kohsuke.args4j.Option;
 public final class Arguments {
     //Устанавливаем параметры
 
-    @Option(name = "-?",aliases =  "--help" , usage = "Help")
+    @Option(name = "-?",aliases =  {"--help","-h"} , usage = "Help")
     private boolean help;
     @Option(name = "-v", aliases = "--verbose", usage = "Наиболее подробный вывод")
     private boolean verbose;
     @Option(name = "-s", aliases = "--silent", usage = "Без вывода в консоль")
     private boolean silent;
-    @Option(name = "-d",  aliases = "--delete", usage = "Только удалить пустые коллекции, ничего не добавлять")
+    @Option(name = "-c",  aliases = "--clean", usage = "Только удалить пустые коллекции, ничего не добавлять")
     private boolean delete;
     @Option(name = "-t", aliases = "--tilde",  usage = "Знак разделения названий коллекций, по умолчанию <~>")
     private String tilde = "~";
@@ -44,7 +44,7 @@ public final class Arguments {
     private boolean nonrecursive;
     @Option(name="-l",  aliases = "--lang",  usage = "Принудительный выбор языка" )
      private Lang lang = Lang.none;
-    @Option(name = "-h", aliases = "--hdd",  usage = "Буква диска на котором расположена БД (ридер)")
+    @Option(name = "-m", aliases = "--mount",  usage = "Буква диска на котором расположена БД (ридер)")
     private String hdd = null;
 
     @Argument
