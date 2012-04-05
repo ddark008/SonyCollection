@@ -1,1 +1,3 @@
 /target/
+*.log
+*.fb2.zip
