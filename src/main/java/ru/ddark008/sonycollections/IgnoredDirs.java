@@ -30,7 +30,7 @@ public class IgnoredDirs {
     private static final Logger log = Logger.getLogger(IgnoredDirs.class.getName());
 
     public IgnoredDirs(File rootDir) {
-        File list = new File(rootDir + "/~!scignore.txt");
+        File list = new File(rootDir + "/~!scignore.ini");
 
         log.debug(list.getAbsoluteFile());
 
